@@ -30,6 +30,9 @@ MINOR = 90
 MICRO = 2
 __version__ = '%d.%d.%d' % (MAJOR, MINOR, MICRO)
 
+local_version_label = 'tkf.1'
+# See: https://www.python.org/dev/peps/pep-0440/#local-version-identifiers
+
 
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
@@ -88,7 +91,7 @@ def get_datafiles():
 
 setup(
     name="PyDSTool",
-    version=__version__,
+    version=__version__ + '+' + local_version_label,
     packages=find_packages(),
     install_requires=[
         "six",
