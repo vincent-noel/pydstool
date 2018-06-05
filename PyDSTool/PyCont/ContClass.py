@@ -87,6 +87,7 @@ class ContClass(Utility):
         self._autoMod = None
         self.curves = {}
         self.plot = pargs()
+        self.tempDirectory = os.getcwd()
 
     def __getitem__(self, name):
         try:
@@ -104,6 +105,11 @@ class ContClass(Utility):
     def __deepcopy__(self, memo=None, _nil=[]):
         pickledself = pickle.dumps(self)
         return pickle.loads(pickledself)
+
+    def setTempDirectory(self, dir):
+        self.tempDirectory = dir
+        if not os.path.isdir(self.tempDirectory):
+            os.mkdir(self.tempDirectory)
 
     def delCurve(self, curvename):
         try:
@@ -400,7 +406,7 @@ class ContClass(Utility):
             print("developers.")
             self._dllext = '.so'
 
-        self._compilation_tempdir = os.path.join(os.getcwd(),
+        self._compilation_tempdir = os.path.join(self.tempDirectory,
                                                  "auto_temp")
         if not os.path.isdir(self._compilation_tempdir):
             try:
@@ -414,9 +420,9 @@ class ContClass(Utility):
         self._compilation_sourcedir = os.path.join(_pydstool_path,"PyCont/auto/module")
         self._vf_file = self.gensys.name+"_vf.c"
         self._vf_filename_ext = "_"+self._vf_file[:-2]
-        if not (os.path.isfile(os.path.join(os.getcwd(),
+        if not (os.path.isfile(os.path.join(self.tempDirectory,
                                             "auto"+self._vf_filename_ext+".py")) and \
-                os.path.isfile(os.path.join(os.getcwd(),
+                os.path.isfile(os.path.join(self.tempDirectory,
                                             "_auto"+self._vf_filename_ext+self._dllext))):
             self.funcspec = self.gensys.funcspec.recreate('c')
             if not nobuild:
@@ -439,7 +445,8 @@ class ContClass(Utility):
         was specified in loadAutoMod.
         """
         try:
-            self._autoMod = __import__("auto"+self._vf_filename_ext, globals())
+            sys.path.append(os.path.dirname(self.tempDirectory))
+            self._autoMod = __import__(os.path.basename(self.tempDirectory) + "." + "auto"+self._vf_filename_ext, globals()).auto_model_0_vf
         except:
             print("Error loading auto module.")
             raise
@@ -618,7 +625,7 @@ void jacobianParam(unsigned n_, unsigned np_, double t, double *Y_, double *p_, 
         libdirs list allows additional directories to be searched for
           precompiled libraries."""
 
-        if os.path.isfile(os.path.join(os.getcwd(),
+        if os.path.isfile(os.path.join(self.tempDirectory,
                                        "_auto"+self._vf_filename_ext+self._dllext)):
             # then DLL file already exists and we can't overwrite it at this
             # time
@@ -627,7 +634,7 @@ void jacobianParam(unsigned n_, unsigned np_, double t, double *Y_, double *p_, 
             print("-----------------------------------------------------------")
             print("Present limitation of Python: Cannot rebuild library")
             print("without exiting Python and deleting the shared library")
-            print("   " + str(os.path.join(os.getcwd(),
+            print("   " + str(os.path.join(self.tempDirectory,
                                            "_auto"+self._vf_filename_ext+self._dllext)))
             print("by hand! If you made any changes to the system you should")
             print("not proceed with running the integrator until you quit")
@@ -683,15 +690,16 @@ void jacobianParam(unsigned n_, unsigned np_, double t, double *Y_, double *p_, 
         #modfilelist.extend(libsources)
 
         # script args
-        script_args = ['--verbose', 'build', '--build-lib=.', #+os.getcwd(), # '-t/',
-                       '-tauto_temp', #+self._compilation_tempdir,
-                       '--build-base=auto_temp'] #+self._compilation_sourcedir]
+        script_args = ['--verbose', 'build', '--build-lib=%s' % self.tempDirectory,
+                       '--build-temp=%s' % self._compilation_tempdir,
+                       '--build-base=%s' % self._compilation_tempdir]
+
         if self.gensys._compiler != '':
             script_args.append('-c'+str(self.gensys._compiler))
 
         # include directories for libraries
         incdirs = [get_include()]
-        incdirs.extend([os.getcwd(), os.path.join(self._compilation_sourcedir,"include"),
+        incdirs.extend([self.tempDirectory, os.path.join(self._compilation_sourcedir,"include"),
                    self._compilation_tempdir, os.path.join(_pydstool_path,"PyCont/auto/src/include")])
         incdirs.extend(libdirs)
 
@@ -712,7 +720,7 @@ void jacobianParam(unsigned n_, unsigned np_, double t, double *Y_, double *p_, 
                       extra_compile_args=utils.extra_arch_arg([
                           '-w', '-D__PYTHON__', '-std=c99']),
                       extra_link_args=utils.extra_arch_arg(['-w']),
-                      library_dirs=libdirs + ['./'],
+                      library_dirs=libdirs + [self.tempDirectory],
                       libraries=libsources)])
         try:
             # move library files into the user's CWD
@@ -720,11 +728,11 @@ void jacobianParam(unsigned n_, unsigned np_, double t, double *Y_, double *p_, 
             if swigfile in modfilelist or not \
                os.path.isfile(os.path.join(self._compilation_tempdir,
                                            "auto"+self._vf_filename_ext+".py")):
-                shutil.move(os.path.join(os.getcwd(),
+                shutil.move(os.path.join(self.tempDirectory,
                                          self._compilation_tempdir, distdestdir,
                                          "auto_temp",
                                          "auto"+self._vf_filename_ext+".py"),
-                            os.path.join(os.getcwd(),
+                            os.path.join(self.tempDirectory,
                                          "auto"+self._vf_filename_ext+".py"))
         except:
             print("\nError occurred in generating Auto system")
