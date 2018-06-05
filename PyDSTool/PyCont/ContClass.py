@@ -4,6 +4,7 @@
 """
 
 from __future__ import absolute_import, print_function
+from six import PY3
 
 from .Continuation import (
     EquilibriumCurve, FoldCurve, HopfCurveOne, HopfCurveTwo,
@@ -446,7 +447,7 @@ class ContClass(Utility):
         """
         try:
             sys.path.append(os.path.dirname(self.tempDirectory))
-            self._autoMod = __import__(os.path.basename(self.tempDirectory) + "." + "auto"+self._vf_filename_ext, globals()).auto_model_0_vf
+            self._autoMod = getattr(__import__(os.path.basename(self.tempDirectory) + "." + "auto"+self._vf_filename_ext, globals()), "auto"+self._vf_filename_ext)
         except:
             print("Error loading auto module.")
             raise
@@ -709,19 +710,36 @@ void jacobianParam(unsigned n_, unsigned np_, double t, double *Y_, double *p_, 
         #libsources.append('auto2000')
 
         # Use distutils to perform the compilation of the selected files
-        with RedirectStdout(os.path.join('auto_temp', 'auto.log')):
-            setup(name="Auto 2000 continuer",
-                  author="PyDSTool (automatically generated)",
-                  script_args=script_args,
-                  ext_modules=[Extension(
-                      "_auto" + self._vf_filename_ext,
-                      sources=modfilelist,
-                      include_dirs=incdirs,
-                      extra_compile_args=utils.extra_arch_arg([
-                          '-w', '-D__PYTHON__', '-std=c99']),
-                      extra_link_args=utils.extra_arch_arg(['-w']),
-                      library_dirs=libdirs + [self.tempDirectory],
-                      libraries=libsources)])
+        if PY3:
+            from contextlib import redirect_stdout
+            with open(os.path.join(self.tempDirectory, 'auto_temp', 'auto.log'), 'w') as out:
+                with redirect_stdout(out):
+                    setup(name="Auto 2000 continuer",
+                          author="PyDSTool (automatically generated)",
+                          script_args=script_args,
+                          ext_modules=[Extension(
+                              "_auto" + self._vf_filename_ext,
+                              sources=modfilelist,
+                              include_dirs=incdirs,
+                              extra_compile_args=utils.extra_arch_arg([
+                                  '-w', '-D__PYTHON__', '-std=c99']),
+                              extra_link_args=utils.extra_arch_arg(['-w']),
+                              library_dirs=libdirs + [self.tempDirectory],
+                              libraries=libsources)])
+        else:
+            with RedirectStdout(os.path.join(self.tempDirectory, 'auto_temp', 'auto.log')):
+                setup(name="Auto 2000 continuer",
+                      author="PyDSTool (automatically generated)",
+                      script_args=script_args,
+                      ext_modules=[Extension(
+                          "_auto" + self._vf_filename_ext,
+                          sources=modfilelist,
+                          include_dirs=incdirs,
+                          extra_compile_args=utils.extra_arch_arg([
+                              '-w', '-D__PYTHON__', '-std=c99']),
+                          extra_link_args=utils.extra_arch_arg(['-w']),
+                          library_dirs=libdirs + [self.tempDirectory],
+                          libraries=libsources)])
         try:
             # move library files into the user's CWD
             distdestdir = distutil_destination()
