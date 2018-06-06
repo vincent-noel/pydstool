@@ -1,15 +1,15 @@
 language: python
 matrix:
     include:
-        - python: 3.4
+        - python: 3.5
           env:
             - NUMPY_SPEC=numpy
-            - SCIPY_SPEC="scipy<0.17"
+            - SCIPY_SPEC=scipy
             - COVERAGE="no"
         - python: 2.7
           env:
             - NUMPY_SPEC=numpy
-            - SCIPY_SPEC="scipy<0.17"
+            - SCIPY_SPEC=scipy
             - COVERAGE="yes"
 
 before_install:
