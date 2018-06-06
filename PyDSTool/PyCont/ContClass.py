@@ -111,6 +111,8 @@ class ContClass(Utility):
         self.tempDirectory = dir
         if not os.path.isdir(self.tempDirectory):
             os.mkdir(self.tempDirectory)
+            # Creating an empty __init__.py, to be able to load the folder as a module on python 2
+            open(os.path.join(self.tempDirectory, "__init__.py"), 'a').close()
 
     def delCurve(self, curvename):
         try:
