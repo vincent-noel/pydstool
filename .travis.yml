@@ -1,11 +1,17 @@
 language: python
 matrix:
     include:
+        - python: 3.6
+          env:
+            - NUMPY_SPEC=numpy
+            - SCIPY_SPEC=scipy
+            - COVERAGE="yes"
+
         - python: 3.5
           env:
             - NUMPY_SPEC=numpy
             - SCIPY_SPEC=scipy
-            - COVERAGE="no"
+            - COVERAGE="yes"
         - python: 2.7
           env:
             - NUMPY_SPEC=numpy
@@ -23,7 +29,7 @@ before_install:
 
 install:
     - conda install --yes python=$TRAVIS_PYTHON_VERSION atlas $NUMPY_SPEC $SCIPY_SPEC pytest six mock
-    - if [ "${COVERAGE}" == "yes" ]; then conda install --yes -c dan_blanchard coverage python-coveralls; fi
+    - if [ "${COVERAGE}" == "yes" ]; then conda install --yes -c conda-forge coverage python-coveralls; fi
 
 script:
     - if [ "${COVERAGE}" == "yes" ]; then sed -i'' -e 's/--boxed//g' pytest.ini && coverage run --source=PyDSTool setup.py test -q; else python setup.py test; fi
