@@ -14,7 +14,7 @@ matrix:
 
 before_install:
     # Use miniconda. Taken from https://gist.github.com/dan-blanchard/7045057
-    - wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
+    - if [[ `echo "${TRAVIS_PYTHON_VERSION}" | cut -d'.' -f1`  == "3" ]]; then wget http://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh; else wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh; fi
     - chmod +x miniconda.sh
     - ./miniconda.sh -b -p $HOME/miniconda
     - export PATH=$HOME/miniconda/bin:$PATH
