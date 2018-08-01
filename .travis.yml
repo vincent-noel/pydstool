@@ -25,7 +25,8 @@ before_install:
     - ./miniconda.sh -b -p $HOME/miniconda
     - export PATH=$HOME/miniconda/bin:$PATH
     - conda update --yes conda
-    - conda install --yes gcc_linux-64 gfortran_linux-64 
+    - conda install --yes gcc_linux-64 gfortran_linux-64
+    - for file in `find $HOME/miniconda/bin -name 'x86_64*'`; do ln -s $file $HOME/miniconda/bin/`echo $file | rev | cut -d'-' -f1 | rev`; done;
 
 install:
     - conda install --yes python=$TRAVIS_PYTHON_VERSION atlas $NUMPY_SPEC $SCIPY_SPEC pytest six mock swig
