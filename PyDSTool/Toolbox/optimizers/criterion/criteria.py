@@ -94,12 +94,12 @@ class RelativeParametersCriterion(object):
   """
   The relative criterion stops the optimization when the relative error of the parameters is below a certain level (xtol)
   """
-  def __init__(self, xtol, weight = None):
+  def __init__(self, xtol, weight=None):
     """
     Initializes the criterion with an error fraction and the weight assigned for each parameter
     """
     self.error = xtol
-    if weight != None:
+    if weight is not None:
       self.weight = weight
     else:
       self.weight = 1
@@ -119,12 +119,12 @@ class AbsoluteParametersCriterion(object):
   """
   The absolute criterion stops the optimization when the relative error of the parameters is below a certain level (xtol)
   """
-  def __init__(self, xtol, weight = None):
+  def __init__(self, xtol, weight=None):
     """
     Initializes the criterion with an error fraction and the weight assigned for each parameter
     """
     self.error = xtol
-    if weight != None:
+    if weight is not None:
       self.weight = weight
     else:
       self.weight = 1
@@ -144,12 +144,12 @@ class GradientCriterion(object):
   """
   The gradient criterion stops the optimization when the gradient at the current point is less that a given tolerance
   """
-  def __init__(self, gtol, weight = None):
+  def __init__(self, gtol, weight=None):
     """
     Initializes the criterion with an error fraction and the weight assigned for each parameter
     """
     self.error = gtol
-    if weight != None:
+    if weight is not None:
       self.weight = weight
     else:
       self.weight = 1
