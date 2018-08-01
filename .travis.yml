@@ -28,7 +28,7 @@ before_install:
     - conda install --yes gcc_linux-64
 
 install:
-    - conda install --yes python=$TRAVIS_PYTHON_VERSION atlas $NUMPY_SPEC $SCIPY_SPEC pytest six mock
+    - conda install --yes python=$TRAVIS_PYTHON_VERSION atlas $NUMPY_SPEC $SCIPY_SPEC pytest six mock swig
     - if [ "${COVERAGE}" == "yes" ]; then conda install --yes -c conda-forge coverage python-coveralls; fi
 
 script:
@@ -37,11 +37,5 @@ script:
 after_success:
     - if [ "${COVERAGE}" == "yes" ]; then coveralls --config_file .coveragerc; fi
 
-cache: apt
 
 sudo: false
-
-addons:
-    apt:
-      packages:
-        - swig
