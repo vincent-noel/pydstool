@@ -30,6 +30,7 @@ before_install:
 
 install:
     - conda install --yes python=$TRAVIS_PYTHON_VERSION atlas $NUMPY_SPEC $SCIPY_SPEC pytest six mock swig
+    - if [[ `echo "${TRAVIS_PYTHON_VERSION}" | cut -d'.' -f1`  == "2" ]]; then conda update --yes setuptools; fi;
     - if [ "${COVERAGE}" == "yes" ]; then conda install --yes -c conda-forge coverage python-coveralls; fi
 
 script:
